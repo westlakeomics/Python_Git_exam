@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           BRANCH="${{ github.ref_name }}"
-          
+
           # Attempt to create PR
           # If this fails with "GitHub Actions is not permitted to create or approve pull requests",
           # see .github/SETUP_GUIDE.md for configuration instructions
@@ -63,7 +63,7 @@ jobs:
           Once all checks pass and the PR is merged, the branch will be automatically recorded and cleaned up." \
             --base main \
             --head "$BRANCH"; then
-            
+
             echo "::error::Failed to create PR. This is likely because:"
             echo "::error::1. GitHub Actions is not permitted to create pull requests"
             echo "::error::2. Repository Settings → Actions → General → Workflow permissions"
