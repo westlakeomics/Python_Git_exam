@@ -13,6 +13,10 @@
 3. ✅ 合并后记录分支名到 `passed_branches/merged_branches.txt`
 4. ✅ 自动删除已合并的分支
 
+> **⚠️ 重要：管理员首次设置**  
+> 为了让 GitHub Actions 能够自动创建 PR，仓库管理员需要启用一个权限设置。  
+> 详细设置步骤请查看：[**权限设置指南**](.github/SETUP_GUIDE.md)
+
 详细说明请查看: [**自动化工作流程文档**](.github/WORKFLOW.md)
 
 ## 一、考试目标
