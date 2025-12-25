@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def run_cmd(args, cwd=PROJECT_ROOT):
@@ -43,6 +42,7 @@ def test_cli_file_flag(tmp_path: Path):
 
 
 def test_negative_not_allowed():
+    sys.path.insert(0, str(PROJECT_ROOT))
     from src.bad_style import calc
 
     with pytest.raises(Exception):  # noqa: B017 - required by exam starter behavior
@@ -50,6 +50,7 @@ def test_negative_not_allowed():
 
 
 def test_negative_allowed():
+    sys.path.insert(0, str(PROJECT_ROOT))
     from src.bad_style import calc
 
     assert calc([1, -1, 2], mode="mean", allow_negative=True) == 0.67
