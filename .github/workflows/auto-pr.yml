@@ -28,7 +28,9 @@ jobs:
       - name: Check if PR already exists
         id: check-pr
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Use PAT_TOKEN if available, otherwise fall back to github.token
+          # PAT_TOKEN should be a Personal Access Token or GitHub App token with PR creation permissions
+          GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
         run: |
           BRANCH="${{ github.ref_name }}"
           # Check if a PR already exists for this branch
@@ -38,10 +40,33 @@ jobs:
             echo "PR already exists for branch $BRANCH"
           fi
 
+      - name: Detect token type and check permissions
+        id: check-permissions
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
+        run: |
+          # Determine which token is being used
+          if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
+            echo "Using PAT_TOKEN (Personal Access Token or GitHub App token)"
+            echo "token_type=pat" >> $GITHUB_OUTPUT
+          else
+            echo "Using default GITHUB_TOKEN"
+            echo "token_type=github_token" >> $GITHUB_OUTPUT
+          fi
+          
+          # Test if we have PR creation permissions by checking repository settings
+          # This is a best-effort check - the actual PR creation may still fail
+          if gh api repos/${{ github.repository }} --jq '.permissions' 2>/dev/null; then
+            echo "Successfully authenticated with GitHub API"
+          else
+            echo "::warning::Could not verify API permissions, will attempt PR creation"
+          fi
+
       - name: Create Pull Request
         if: steps.check-pr.outputs.pr_count == '0'
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Use PAT_TOKEN if available, otherwise fall back to github.token
+          GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
         run: |
           BRANCH="${{ github.ref_name }}"
 
@@ -64,10 +89,47 @@ jobs:
             --base main \
             --head "$BRANCH"; then
 
-            echo "::error::Failed to create PR. This is likely because:"
-            echo "::error::1. GitHub Actions is not permitted to create pull requests"
-            echo "::error::2. Repository Settings → Actions → General → Workflow permissions"
-            echo "::error::3. Enable: 'Allow GitHub Actions to create and approve pull requests'"
-            echo "::error::See .github/SETUP_GUIDE.md for detailed instructions"
+            # Provide detailed error message based on token type
+            if [ "${{ steps.check-permissions.outputs.token_type }}" = "github_token" ]; then
+              echo "::error::❌ Failed to create PR using default GITHUB_TOKEN"
+              echo "::error::"
+              echo "::error::📋 This error occurs because:"
+              echo "::error::   GitHub Actions does not have permission to create pull requests"
+              echo "::error::"
+              echo "::error::🔧 Solution Option 1 (Recommended - 5 minutes):"
+              echo "::error::   Enable the repository setting to allow GitHub Actions to create PRs"
+              echo "::error::   1. Go to: Repository Settings → Actions → General"
+              echo "::error::   2. Scroll to: Workflow permissions"
+              echo "::error::   3. Check: ✓ Allow GitHub Actions to create and approve pull requests"
+              echo "::error::   4. Click: Save"
+              echo "::error::   📖 See .github/QUICK_SETUP.md for step-by-step instructions"
+              echo "::error::"
+              echo "::error::🔧 Solution Option 2 (Alternative):"
+              echo "::error::   Use a Personal Access Token (PAT) or GitHub App token"
+              echo "::error::   1. Create a PAT with 'repo' and 'workflow' scopes"
+              echo "::error::   2. Add it as a repository secret named 'PAT_TOKEN'"
+              echo "::error::   📖 See .github/SETUP_GUIDE.md for detailed instructions"
+              echo "::error::"
+              echo "::error::📚 Documentation:"
+              echo "::error::   - Quick Setup: .github/QUICK_SETUP.md"
+              echo "::error::   - Detailed Guide: .github/SETUP_GUIDE.md"
+              echo "::error::   - Workflow Info: .github/WORKFLOW.md"
+            else
+              echo "::error::❌ Failed to create PR using PAT_TOKEN"
+              echo "::error::"
+              echo "::error::📋 Possible reasons:"
+              echo "::error::   1. The PAT_TOKEN may have expired"
+              echo "::error::   2. The PAT_TOKEN may not have sufficient permissions"
+              echo "::error::   3. The token needs 'repo' and 'pull_request' scopes"
+              echo "::error::"
+              echo "::error::🔧 Please verify:"
+              echo "::error::   - Token has not expired"
+              echo "::error::   - Token has 'Contents: Write' and 'Pull Requests: Write' permissions"
+              echo "::error::   - Token is correctly set in repository secrets as 'PAT_TOKEN'"
+              echo "::error::"
+              echo "::error::📚 See .github/SETUP_GUIDE.md for troubleshooting"
+            fi
             exit 1
           fi
+          
+          echo "✅ Successfully created Pull Request for branch: $BRANCH"

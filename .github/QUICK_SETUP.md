@@ -104,6 +104,22 @@ GitHub Actions is not permitted to create or approve pull requests
 1. 确认已完成步骤 1 的设置
 2. 等待 2-5 分钟让设置生效
 3. 重新触发工作流（推送新的提交或重新运行工作流）
+4. **备选方案**：如果无法启用仓库设置，可以使用 Personal Access Token（见 Q4）
+
+### Q4: 无法启用仓库设置或组织不允许？
+
+**解决方案**：使用 Personal Access Token (PAT)
+
+**步骤**：
+1. 创建 Fine-grained Personal Access Token：
+   - 访问 GitHub Settings → Developer settings → Personal access tokens → Fine-grained tokens
+   - 生成 token，权限：**Contents: Write** 和 **Pull Requests: Write**
+2. 添加为仓库 Secret：
+   - 仓库 Settings → Secrets and variables → Actions
+   - 新建 secret，名称：`PAT_TOKEN`，值：粘贴 token
+3. ✅ **完成**：工作流会自动检测并使用 PAT_TOKEN
+
+📖 详细步骤：[SETUP_GUIDE.md](SETUP_GUIDE.md) 方案二
 
 ### Q3: PR 被创建但没有自动运行验证
 
