@@ -42,7 +42,7 @@ This guide helps administrators verify that GitHub Actions has the necessary per
 1. Create a Fine-grained Personal Access Token:
    - Visit: **GitHub Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens**
    - Click: **Generate new token**
-   - Name: `Auto PR Workflow - Python_Git_exam`
+   - Name: `Auto PR Workflow - [Repository Name]` (e.g., `Auto PR Workflow - YourRepo`)
    - Repository access: **Only select repositories** → Choose this repository
    - Permissions:
      - **Contents**: Read and write
