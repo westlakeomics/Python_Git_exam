@@ -1,7 +1,7 @@
 name: Auto Create PR
 
-# Triggers when users push changes to src/bad_style.py on any branch except main
-# 用户推送 src/bad_style.py 的修改到任何非 main 分支时自动触发
+# Triggers when users push changes to src/bad_style.py on non-main branches
+# 用户推送 src/bad_style.py 的修改到非 main 分支时自动触发
 on:
   push:
     branches-ignore:

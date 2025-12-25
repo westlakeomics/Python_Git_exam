@@ -51,7 +51,7 @@
 **操作步骤**：
 ```bash
 # 1. 克隆仓库（如果还未克隆）
-git clone https://github.com/westlakeomics/Python_Git_exam.git
+git clone <YOUR_REPO_URL>  # 例如：https://github.com/westlakeomics/Python_Git_exam.git
 cd Python_Git_exam
 
 # 2. 创建测试分支
