@@ -7,6 +7,21 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
+@pytest.fixture
+def add_src_to_path():
+    """Add project root to sys.path for direct imports."""
+    path_added = False
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+        path_added = True
+
+    try:
+        yield
+    finally:
+        if path_added and str(PROJECT_ROOT) in sys.path:
+            sys.path.remove(str(PROJECT_ROOT))
+
+
 def run_cmd(args, cwd=PROJECT_ROOT):
     return subprocess.run(
         args,
@@ -41,14 +56,14 @@ def test_cli_file_flag(tmp_path: Path):
     assert r.stdout == "2.0\n"
 
 
-def test_negative_not_allowed():
+def test_negative_not_allowed(add_src_to_path):
     from src.bad_style import calc
 
     with pytest.raises(Exception):  # noqa: B017 - required by exam starter behavior
         calc([1, -1, 2], mode="mean", allow_negative=False)
 
 
-def test_negative_allowed():
+def test_negative_allowed(add_src_to_path):
     from src.bad_style import calc
 
     assert calc([1, -1, 2], mode="mean", allow_negative=True) == 0.67
