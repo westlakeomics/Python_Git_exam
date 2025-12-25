@@ -68,22 +68,21 @@ Settings → Actions → General → Workflow permissions
    - Value: 粘贴刚才创建的 token
    - 点击 **Add secret**
 
-3. **修改工作流文件**
-   编辑 `.github/workflows/auto-pr.yml`，将：
+3. **无需修改工作流文件**
+   工作流已自动支持 PAT_TOKEN 作为备选方案。如果检测到 `PAT_TOKEN` secret 存在，将自动使用它。
+   
+   工作流中的配置已经是：
    ```yaml
    env:
-     GH_TOKEN: ${{ github.token }}
+     GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
    ```
-   改为：
-   ```yaml
-   env:
-     GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-   ```
+   这意味着如果 `PAT_TOKEN` 存在，将优先使用它；否则使用默认的 `github.token`。
 
 #### 注意事项：
-- PAT 有过期时间，需要定期更新
-- 使用 PAT 创建的 PR 将显示为个人创建，而非 bot
-- 建议使用方案一（更简单且更安全）
+- ✅ **无需修改代码**：只需添加 secret，工作流会自动使用
+- ⚠️ PAT 有过期时间，需要定期更新（建议设置提醒）
+- ℹ️ 使用 PAT 创建的 PR 将显示为个人创建，而非 bot
+- 💡 建议使用方案一（更简单且更安全）
 
 ## 验证设置
 
